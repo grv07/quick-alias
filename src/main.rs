@@ -4,8 +4,8 @@ use std::io::Read;
 mod command_parser;
 
 fn main() {
-    let mut child = Command::new("ping")
-                     .args(vec!["google.com", "-c 6"])
+    let mut child = Command::new("python3")
+                     .args(vec!["-m", "http.server", "8000"])
                      .stdout(Stdio::piped())
                      .spawn()
                      .expect("Failed to execute command");
