@@ -1,29 +1,37 @@
 use ini::Ini;
-use std::fs::{File, OpenOptions};
-use std::path::Path;
+use std::fs::File;
 
-struct Parser {
-    token: [char; 2],
+struct Parser<'a> {
+    alias_manager: AliasManager<'a>,
 }
 
-///
-/// bb ===is map to==> bazel build
-/// db_path ===is map to==> my/db/path/here/
-/// merge_path ===is map to==> merge/path/here/
-/// {bb} {db_path}/new/{merge_path}
-///                 ==(must parse to)==>
-///                          bazel build my/db/path/here/new/my/merge/path/here/
-///
-impl Parser {
+impl<'a> Parser<'a> {
     pub fn new() -> Self {
-        Self { token: ['{', '}'] }
+        Self {
+            alias_manager: AliasManager::new("./q_alias.ini"),
+        }
     }
 
-    fn parse(&self, raw_string: String) -> Option<String> {
-        // Should retrun same if mapping not avaialable in quick_aliasi.toml.
-        // Must support inner depth of aliasing.
-        // Must support && sepration.
-        None
+    fn parse(&self, raw_command: String) -> Option<String> {
+        let suf: Vec<_> = raw_command.match_indices("{").collect();
+        let pre: Vec<_> = raw_command.match_indices("}").collect();
+        if suf.len() > 0 && pre.len() > 0 {
+            for (i, _) in suf.iter().enumerate() {
+                let suf = suf[i].0 + 1;
+                let pre = pre[i].0;
+                let qa_sub_cmd = raw_command.get(suf..pre).unwrap().to_string();
+                let fmt_sb_cmd = format!("{{{}}}", qa_sub_cmd);
+
+                let next_raw_command =
+                    raw_command.replace(&fmt_sb_cmd, &self.parse(qa_sub_cmd).unwrap_or_default());
+
+                return self.parse(next_raw_command);
+            }
+        }
+        if self.alias_manager.get_alias(&raw_command).is_none() {
+            return Some(raw_command);
+        }
+        self.alias_manager.get_alias(&raw_command)
     }
 }
 
@@ -38,6 +46,7 @@ impl<'a> AliasManager<'a> {
         }
     }
 
+    /// My be not required since ini parse provide the functionality
     fn get_alias_ini(&self) -> Option<Ini> {
         let ini = Ini::load_from_file(self.file_path);
         match ini {
@@ -57,7 +66,9 @@ impl<'a> AliasManager<'a> {
 
     fn get_alias(&self, key: &str) -> Option<String> {
         if let Ok(ini) = Ini::load_from_file(self.file_path) {
-            return Some(ini.get_from::<String>(None, key).unwrap().to_string());
+            if let Some(v) = ini.get_from::<String>(None, key) {
+                return Some(v.to_string());
+            }
         }
         None
     }
@@ -73,11 +84,23 @@ impl<'a> AliasManager<'a> {
 #[test]
 fn parse_string_to_command() {
     let parser = Parser::new();
-    let (test_string, res_string) = ("", "");
+    let alias_manager = &parser.alias_manager;
+
+    alias_manager.set_alias("to".to_string(), "/some/to/path".to_string());
+    alias_manager.set_alias("brun".to_string(), "bazel run".to_string());
+    alias_manager.set_alias("bb".to_string(), "bazel build {my_path}".to_string());
+    alias_manager.set_alias("my_path".to_string(), "my/build/path {to}".to_string());
+
+    let (test_string, res_string) = ("{brun}", "bazel run");
+
     let parse_cmd = parser.parse(test_string.to_string()).unwrap();
     assert_eq!(parse_cmd, res_string);
 
-    let (test_string, res_string) = ("", "");
+    let (test_string, res_string) = (
+        "{bb} /temp/path/yo",
+        "bazel build my/build/path /some/to/path /temp/path/yo",
+    );
+
     let parse_cmd = parser.parse(test_string.to_string()).unwrap();
     assert_eq!(parse_cmd, res_string);
 }
