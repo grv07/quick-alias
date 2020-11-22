@@ -1,22 +1,13 @@
-use std::process::{Command, Stdio};
-use std::io::Read;
-
+mod command_handler;
 mod command_parser;
 
+use command_handler::CmdHandler;
+
 fn main() {
-    let mut child = Command::new("python3")
-                     .args(vec!["-m", "http.server", "8000"])
-                     .stdout(Stdio::piped())
-                     .spawn()
-                     .expect("Failed to execute command");
-    let mut child_out = child.stdout.take().unwrap();
-    let mut buffer = [0; 100000];
-    loop {
-        let n = child_out.read(&mut buffer[..]).unwrap();
-        if n == 0 {
-            break;
-        }
-        println!("{}", buffer.iter().map(|&x| x as char).map(|x| x.to_string()).collect::<String>());
-    }
-    child.kill();
+    let args: Vec<String> = std::env::args().collect();
+    let args: Vec<&str> = args.iter().map(|s| s.as_ref()).collect();
+
+    let (first, remain) = args.split_at(2);
+    
+    CmdHandler::run_cmd(first[1].to_string(), remain.to_vec());
 }
