@@ -12,26 +12,29 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn parse(&self, raw_command: String) -> Option<String> {
+    pub fn parse(&self, raw_command: String) -> Option<String> {
         let suf: Vec<_> = raw_command.match_indices("{").collect();
         let pre: Vec<_> = raw_command.match_indices("}").collect();
-        if suf.len() > 0 && pre.len() > 0 {
-            for (i, _) in suf.iter().enumerate() {
-                let suf = suf[i].0 + 1;
-                let pre = pre[i].0;
-                let qa_sub_cmd = raw_command.get(suf..pre).unwrap().to_string();
-                let fmt_sb_cmd = format!("{{{}}}", qa_sub_cmd);
 
-                let next_raw_command =
-                    raw_command.replace(&fmt_sb_cmd, &self.parse(qa_sub_cmd).unwrap_or_default());
-
-                return self.parse(next_raw_command);
+        if !(suf.len() > 0 && pre.len() > 0) {
+            if self.alias_manager.get_alias(&raw_command).is_none() {
+                return Some(raw_command);
             }
+            return self.alias_manager.get_alias(&raw_command);
         }
-        if self.alias_manager.get_alias(&raw_command).is_none() {
-            return Some(raw_command);
+
+        for (i, _) in suf.iter().enumerate() {
+            let suf = suf[i].0 + 1;
+            let pre = pre[i].0;
+            let qa_sub_cmd = raw_command.get(suf..pre).unwrap().to_string();
+            let fmt_sb_cmd = format!("{{{}}}", qa_sub_cmd);
+
+            let next_raw_command =
+                raw_command.replace(&fmt_sb_cmd, &self.parse(qa_sub_cmd).unwrap_or_default());
+
+            return self.parse(next_raw_command);
         }
-        self.alias_manager.get_alias(&raw_command)
+        None
     }
 }
 
@@ -46,7 +49,6 @@ impl<'a> AliasManager<'a> {
         }
     }
 
-    /// My be not required since ini parse provide the functionality
     fn get_alias_ini(&self) -> Option<Ini> {
         let ini = Ini::load_from_file(self.file_path);
         match ini {
