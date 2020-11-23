@@ -1,6 +1,7 @@
-# quick-alias
+# quick-alias(qa)
   
-  quick-alias will be usefull for creating aliases for part of the command or full command.<br>
+  quick-alias(qa) is a usefull tool for creating aliases for long and repeated command text(s).<br> 
+  We can use these aliasing dynamically to form many other commands.<br>
   
   All of the alias mapping will be store in toml file on user machine. <br>
   
