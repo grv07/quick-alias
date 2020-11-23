@@ -17,3 +17,16 @@
   
  `qa {bb} {db_path}/new/{merge_path}  => bazel build my/db/path/here/new/my/merge/path/here/` <br>
  
+# How to install ?
+
+Download the binary from https://github.com/grv07/quick-alias/blob/master/example/qa <br>
+
+You can make it executable with `sudo chmod +x todo`
+
+# How to use ?
+'./qa -a "sort_path" "some/full/long/path"' to add quick aliasing.
+'./qa --help' for quick aliasing help.
+
+'./qa bazel build {sort_path}' to run os command with aliases.
+
+**NOTE: Aliases set in your bashrc are not gona work. May be currect in furure :) 
