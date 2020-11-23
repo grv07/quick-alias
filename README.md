@@ -30,4 +30,4 @@ You can make it executable with `sudo chmod +x qa`
 
 './qa bazel build {sort_path}' to run os command with aliases.
 
-**NOTE: Aliases set in your bashrc are not gonna work. May be currect in future :) 
+**NOTE: Aliases set in your bashrc are not gonna work. May be correct in future :) 
