@@ -1,8 +1,8 @@
 use ini::Ini;
 use std::fs::File;
 
-struct Parser<'a> {
-    alias_manager: AliasManager<'a>,
+pub struct Parser<'a> {
+    pub alias_manager: AliasManager<'a>,
 }
 
 impl<'a> Parser<'a> {
@@ -38,7 +38,7 @@ impl<'a> Parser<'a> {
     }
 }
 
-struct AliasManager<'a> {
+pub struct AliasManager<'a> {
     file_path: &'a str,
 }
 
@@ -60,14 +60,14 @@ impl<'a> AliasManager<'a> {
         }
     }
 
-    fn set_alias(&self, key: String, value: String) {
-        let mut ini = self.get_alias_ini().unwrap();
+    pub fn set_alias(&self, key: String, value: String) {
+        let ref mut ini = self.get_alias_ini().unwrap();
         ini.set_to::<String>(None, key, value);
         ini.write_to_file(self.file_path).unwrap();
     }
 
     fn get_alias(&self, key: &str) -> Option<String> {
-        if let Ok(ini) = Ini::load_from_file(self.file_path) {
+        if let Ok(ref mut ini) = Ini::load_from_file(self.file_path) {
             if let Some(v) = ini.get_from::<String>(None, key) {
                 return Some(v.to_string());
             }
@@ -75,11 +75,11 @@ impl<'a> AliasManager<'a> {
         None
     }
 
-    fn drop_alias(&self, key: &str) -> Option<String> {
-        if let Ok(mut ini) = Ini::load_from_file(self.file_path) {
-            return Some(ini.delete_from::<String>(None, key).unwrap().to_string());
+    pub fn drop_alias(&self, key: &str) {
+        if let Ok(ref mut ini) = Ini::load_from_file(self.file_path) {
+            ini.delete_from::<String>(None, key).unwrap().to_string();
+            ini.write_to_file(self.file_path).unwrap();
         }
-        None
     }
 }
 
