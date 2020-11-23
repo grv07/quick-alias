@@ -22,7 +22,7 @@
 
 Download the binary from https://github.com/grv07/quick-alias/blob/master/example/qa <br>
 
-You can make it executable with `sudo chmod +x todo`
+You can make it executable with `sudo chmod +x qa`
 
 # How to use ?
 './qa -a "sort_path" "some/full/long/path"' to add quick aliasing.
