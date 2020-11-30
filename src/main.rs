@@ -1,9 +1,9 @@
 mod command_handler;
-mod command_parser;
+mod parser_handler;
 
 use clap::{App, Arg};
 use command_handler::CmdHandler;
-use command_parser::Parser;
+use parser_handler::Parser;
 
 fn main() {
     let ref parser = Parser::new();

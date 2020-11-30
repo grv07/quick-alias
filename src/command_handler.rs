@@ -27,6 +27,6 @@ impl CmdHandler {
             );
         }
 
-        child.kill();
+        child.kill().unwrap();
     }
 }
