@@ -19,7 +19,11 @@ qa -a "merge_path" "merge/path/here/"
 ```
 ###### Call
 ```
-qa {bb} {db_path}/new/{merge_path}  == Will resolve to=> bazel build my/db/path/here/new/my/merge/path/here/
+qa {bb} {db_path}/new/{merge_path}
+```  
+**== Will resolve to=>** 
+```
+bazel build my/db/path/here/new/my/merge/path/here/
 ``` 
 ###### Remove
 ```
