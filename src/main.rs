@@ -4,6 +4,7 @@ mod parser_handler;
 use clap::{App, Arg};
 use command_handler::CmdHandler;
 use parser_handler::Parser;
+use std::io::{self, Write};
 
 fn main() {
     let ref parser = Parser::new();
@@ -22,10 +23,10 @@ fn cli_handler(parser: &Parser) -> bool {
     let allowd_cmd: Vec<String> = vec![
         String::from("add"),
         String::from("-a"),
-
         String::from("remove"),
         String::from("-r"),
-
+        String::from("explain"),
+        String::from("-e"),
         String::from("--help"),
     ];
 
@@ -48,6 +49,14 @@ fn cli_handler(parser: &Parser) -> bool {
                 .help("Set/Update a key -> value mapping."),
         )
         .arg(
+            Arg::with_name("explain")
+                .short("e")
+                .long("explain")
+                .value_name("TEXT")
+                .multiple(true)
+                .help("Show underneath command."),
+        )
+        .arg(
             Arg::with_name("remove")
                 .short("r")
                 .long("remove")
@@ -56,8 +65,19 @@ fn cli_handler(parser: &Parser) -> bool {
         )
         .get_matches();
 
-    if let Some(ref mut data) = matches.values_of("add") {
+    if let Some(mut data) = matches.values_of("explain") {
+        let data = data.next().unwrap();
+        let raw_string = parser.parse(data.to_string()).unwrap();
+        let stdio = io::stdout();
+        let mut handle = stdio.lock();
+        handle
+            .write_all(raw_string.as_bytes())
+            .expect("Not able to write :(");
+        handle.write(b"\n").unwrap();
+        return true;
+    }
 
+    if let Some(ref mut data) = matches.values_of("add") {
         parser.alias_manager.set_alias(
             data.next().unwrap().to_string(),
             data.next().unwrap().to_string(),
@@ -66,7 +86,6 @@ fn cli_handler(parser: &Parser) -> bool {
     }
 
     if let Some(data) = matches.value_of("remove") {
-        println!("{:?}", data);
         parser.alias_manager.drop_alias(data);
         return true;
     }
