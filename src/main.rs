@@ -98,10 +98,12 @@ fn cli_handler(parser: &Parser) -> bool {
     }
 
     if matches.is_present("list") {
-        let data = parser.alias_manager.get_all_aliases_mapping();
+        let data = {
+            let data = parser.alias_manager.get_all_aliases_mapping();
+            data.join(" \n")
+        };
         let stdio = io::stdout();
         let mut handle = stdio.lock();
-        let data = data.join(" \n");
         handle
             .write_all(data.as_bytes())
             .expect("Not able to write :(");
