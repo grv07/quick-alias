@@ -75,6 +75,21 @@ impl<'a> AliasManager<'a> {
         None
     }
 
+    pub fn get_all_aliases_mapping(&self) -> Vec<String> {
+        let mut list: Vec<String> = Vec::new();
+        if let Ok(ref ini) = Ini::load_from_file(self.file_path) {
+            let mut key_value_iter = ini.iter();
+            while let Some(value) = key_value_iter.next() {
+                if !value.1.is_empty() {
+                    for (k, v) in value.1.iter() {
+                        list.push(format!("Alias for {} to {} \n", k, v));
+                    }
+                }
+            }
+        }
+        list
+    }
+
     pub fn drop_alias(&self, key: &str) {
         if let Ok(ref mut ini) = Ini::load_from_file(self.file_path) {
             ini.delete_from::<String>(None, key).unwrap().to_string();

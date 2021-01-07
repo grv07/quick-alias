@@ -27,6 +27,8 @@ fn cli_handler(parser: &Parser) -> bool {
         String::from("-r"),
         String::from("explain"),
         String::from("-e"),
+        String::from("list"),
+        String::from("-l"),
         String::from("--help"),
     ];
 
@@ -36,10 +38,10 @@ fn cli_handler(parser: &Parser) -> bool {
         return false;
     }
 
-    let matches = App::new("My Super Program")
+    let matches = App::new("Quick alias Program")
         .version("0.1")
         .author("Gaurav Tyagi")
-        .about("Does awesome things")
+        .about("Add/Drop aliases fast")
         .arg(
             Arg::with_name("add")
                 .short("a")
@@ -57,6 +59,14 @@ fn cli_handler(parser: &Parser) -> bool {
                 .help("Show underneath command."),
         )
         .arg(
+            Arg::with_name("list")
+                .short("l")
+                .long("list")
+                .value_name("TEXT")
+                .multiple(true)
+                .help("Show all saved aliases."),
+        )
+        .arg(
             Arg::with_name("remove")
                 .short("r")
                 .long("remove")
@@ -66,8 +76,10 @@ fn cli_handler(parser: &Parser) -> bool {
         .get_matches();
 
     if let Some(mut data) = matches.values_of("explain") {
-        let data = data.next().unwrap();
-        let raw_string = parser.parse(data.to_string()).unwrap();
+        let raw_string = {
+            let data = data.next().unwrap();
+            parser.parse(data.to_string()).unwrap()
+        };
         let stdio = io::stdout();
         let mut handle = stdio.lock();
         handle
@@ -82,6 +94,17 @@ fn cli_handler(parser: &Parser) -> bool {
             data.next().unwrap().to_string(),
             data.next().unwrap().to_string(),
         );
+        return true;
+    }
+
+    if matches.is_present("list") {
+        let data = parser.alias_manager.get_all_aliases_mapping();
+        let stdio = io::stdout();
+        let mut handle = stdio.lock();
+        let data = data.join(" \n");
+        handle
+            .write_all(data.as_bytes())
+            .expect("Not able to write :(");
         return true;
     }
 
