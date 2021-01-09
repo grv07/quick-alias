@@ -82,8 +82,8 @@ impl<'a> AliasManager<'a> {
             let mut key_value_iter = ini.iter();
             while let Some(value) = key_value_iter.next() {
                 if !value.1.is_empty() {
-                    for (k, v) in value.1.iter() {
-                        list.push(format!("{} = {} \n", k.yellow(), v.magenta()));
+                    for (i, (k,v)) in value.1.iter().enumerate() {
+                        list.push(format!("{} > {} = {} \n", i+1, k.yellow(), v.magenta()));
                     }
                 }
             }
