@@ -82,7 +82,7 @@ impl<'a> AliasManager<'a> {
             while let Some(value) = key_value_iter.next() {
                 if !value.1.is_empty() {
                     for (k, v) in value.1.iter() {
-                        list.push(format!("Alias for {} to {} \n", k, v));
+                        list.push(format!("{} = {} \n", k, v));
                     }
                 }
             }

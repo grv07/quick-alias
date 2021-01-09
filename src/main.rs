@@ -62,8 +62,6 @@ fn cli_handler(parser: &Parser) -> bool {
             Arg::with_name("list")
                 .short("l")
                 .long("list")
-                .value_name("TEXT")
-                .multiple(true)
                 .help("Show all saved aliases."),
         )
         .arg(
