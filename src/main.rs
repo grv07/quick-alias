@@ -111,7 +111,7 @@ fn cli_handler(parser: &Parser) -> bool {
     if let Some(data) = matches.value_of("remove") {
         parser.alias_manager.drop_alias(data);
         return true;
-    }
+    };
 
     return false;
 }

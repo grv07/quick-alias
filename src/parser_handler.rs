@@ -1,5 +1,6 @@
 use ini::Ini;
 use std::fs::File;
+use colored::*;
 
 pub struct Parser<'a> {
     pub alias_manager: AliasManager<'a>,
@@ -82,13 +83,13 @@ impl<'a> AliasManager<'a> {
             while let Some(value) = key_value_iter.next() {
                 if !value.1.is_empty() {
                     for (k, v) in value.1.iter() {
-                        list.push(format!("{} = {} \n", k, v));
+                        list.push(format!("{} = {} \n", k.yellow(), v.magenta()));
                     }
                 }
             }
         }
         list
-    }
+    }    
 
     pub fn drop_alias(&self, key: &str) {
         if let Ok(ref mut ini) = Ini::load_from_file(self.file_path) {
